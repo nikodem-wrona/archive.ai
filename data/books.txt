@@ -1,0 +1,4 @@
+List of books I have read or am reading (title, author, year, rating):
+
+- Classical Mechanics, Leonard Susskind, George Hrabovsky, 2014, 8
+- Barbarossa, Jonathan Dimbleby, 2010, 9

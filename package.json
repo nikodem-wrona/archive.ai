@@ -1,0 +1,40 @@
+{
+  "name": "archive.ai",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node ./dist/index.js",
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "lint": "eslint . --ext .js,.mjs,.cjs,.ts",
+    "format": "prettier --write ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.10.10",
+    "@types/pg": "^8.11.11",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.2.3",
+    "nodemon": "^3.1.9",
+    "prettier": "^3.4.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "@fastify/env": "^5.0.2",
+    "@langchain/community": "^0.3.27",
+    "@langchain/core": "^0.3.36",
+    "@langchain/langgraph": "^0.2.41",
+    "@langchain/openai": "^0.4.2",
+    "d3-dsv": "^3.0.1",
+    "dotenv": "^16.4.7",
+    "fastify": "^5.2.1",
+    "fastify-plugin": "^5.0.1",
+    "langchain": "^0.3.13",
+    "pg": "^8.13.1"
+  }
+}
