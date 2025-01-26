@@ -3,9 +3,9 @@ import { join } from 'path';
 import Fastify from 'fastify';
 import fastifyEnv from '@fastify/env';
 
-import StoreRoute from './routes/store';
+import storeRoute from './routes/store';
 
-import pgVectorPlugin from './plugins/pgvector';
+import pgVectorConfigPlugin from './plugins/pgvector';
 
 const envOpts = {
   schema: {
@@ -52,8 +52,8 @@ const server = Fastify({
 const start = async () => {
   try {
     await server.register(fastifyEnv, envOpts);
-    await server.register(pgVectorPlugin);
-    await server.register(StoreRoute);
+    await server.register(pgVectorConfigPlugin);
+    await server.register(storeRoute);
 
     server.listen(
       { port: server.config.PORT, host: '0.0.0.0' },

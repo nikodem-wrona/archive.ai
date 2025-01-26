@@ -4,13 +4,15 @@ import {
   PGVectorStore,
   PGVectorStoreArgs,
 } from '@langchain/community/vectorstores/pgvector';
-import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { CSVLoader } from '@langchain/community/document_loaders/fs/csv';
 
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { pull } from 'langchain/hub';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { Annotation, StateGraph } from '@langchain/langgraph';
+
+const DEFAULT_CHUNK_SIZE = 1000;
+const DEFAULT_CHUNK_OVERLAP = 200;
 
 const llm = new ChatOpenAI({
   model: 'gpt-4o-mini',
@@ -26,8 +28,8 @@ const handleStore = async (pgVectorConfig: PGVectorStoreArgs) => {
   const docs = await loader.load();
 
   const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 1000,
-    chunkOverlap: 200,
+    chunkSize: DEFAULT_CHUNK_SIZE,
+    chunkOverlap: DEFAULT_CHUNK_OVERLAP,
   });
 
   const splits = await splitter.splitDocuments(docs);
@@ -38,11 +40,14 @@ const handleStore = async (pgVectorConfig: PGVectorStoreArgs) => {
   );
 
   await vectorStore.addDocuments(splits);
-
-  return { success: true };
 };
 
-const handleRetrieve = async (pgVectorConfig: PGVectorStoreArgs) => {
+const handleRetrieve = async (
+  body: {
+    question: string;
+  },
+  pgVectorConfig: PGVectorStoreArgs,
+) => {
   const promptTemplate = await pull<ChatPromptTemplate>('rlm/rag-prompt');
 
   const InputStateAnnotation = Annotation.Root({
@@ -70,8 +75,6 @@ const handleRetrieve = async (pgVectorConfig: PGVectorStoreArgs) => {
       .map((doc) => (doc as any).pageContent)
       .join('\n');
 
-    console.log(docsContent);
-
     const messages = await promptTemplate.invoke({
       question: state.question,
       context: docsContent,
@@ -88,10 +91,9 @@ const handleRetrieve = async (pgVectorConfig: PGVectorStoreArgs) => {
     .addEdge('generate', '__end__')
     .compile();
 
-  let inputs = { question: 'What books I have read?' };
+  let inputs = { question: body.question };
 
   const result = await graph.invoke(inputs);
-  console.log(result.answer);
 
   return { answer: result.answer };
 };
@@ -104,8 +106,17 @@ export default async function (server: FastifyInstance) {
   });
 
   server.route({
-    method: 'GET',
+    method: 'POST',
     url: '/retrieve',
-    handler: () => handleRetrieve(server.pgVectorConfig),
+    schema: {
+      body: {
+        type: 'object',
+        required: ['question'],
+        properties: {
+          question: { type: 'string' },
+        },
+      },
+    },
+    handler: (req) => handleRetrieve(req.body as any, server.pgVectorConfig),
   });
 }

@@ -12,7 +12,7 @@ declare module 'fastify' {
   }
 }
 
-const pgVectorPlugin: FastifyPluginAsync = fp(async (server) => {
+const pgVectorConfigPlugin: FastifyPluginAsync = fp(async (server) => {
   const pgPool = new pg.Pool({
     connectionString: server.config.DATABASE_URL,
   });
@@ -32,4 +32,4 @@ const pgVectorPlugin: FastifyPluginAsync = fp(async (server) => {
   server.decorate('pgVectorConfig', config);
 });
 
-export default pgVectorPlugin;
+export default pgVectorConfigPlugin;
